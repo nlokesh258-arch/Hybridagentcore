@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Business Process Assistant</title>
+<style>
+:root {
+  --bg: #0b1020;
+  --panel: #121a2d;
+  --border: #293550;
+  --text: #edf2ff;
+  --muted: #9aa9c4;
+  --accent: #7c83ff;
+  --green: #4adea2;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+header {
+  padding: 20px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+.brand { font-weight: 700; font-size: 18px; }
+.brand span { color: var(--accent); }
+.status {
+  color: var(--green);
+  font-size: 12px;
+  border: 1px solid #245843;
+  background: #112a25;
+  padding: 7px 11px;
+  border-radius: 20px;
+}
+main {
+  width: min(1050px, 92%);
+  margin: 38px auto;
+}
+.eyebrow {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+h1 { font-size: clamp(28px, 4vw, 42px); margin: 12px 0; }
+.subtitle { color: var(--muted); line-height: 1.7; }
+.tools {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 26px 0;
+}
+.tool, .chat-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+}
+.tool {
+  padding: 17px;
+  cursor: pointer;
+  color: var(--text);
+  text-align: left;
+  font: inherit;
+  transition: border-color .2s, transform .2s;
+}
+.tool:hover { border-color: var(--accent); transform: translateY(-2px); }
+.tool strong { display: block; margin: 9px 0; }
+.tool small { color: var(--muted); line-height: 1.5; }
+.tool-icon { font-size: 24px; }
+.chat-panel { overflow: hidden; }
+.chat-heading {
+  padding: 17px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.chat-heading small { color: var(--muted); }
+.messages {
+  height: 340px;
+  overflow-y: auto;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.message {
+  padding: 13px 16px;
+  max-width: 85%;
+  border-radius: 13px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.65;
+}
+.bot { background: #1b2740; align-self: flex-start; }
+.user { background: #4148a3; align-self: flex-end; }
+.error { background: #51252d; align-self: flex-start; }
+.composer {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  border-top: 1px solid var(--border);
+}
+input {
+  flex: 1;
+  min-width: 0;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #0b1222;
+  color: var(--text);
+  outline: none;
+}
+input:focus { border-color: var(--accent); }
+button.send {
+  border: 0;
+  border-radius: 10px;
+  padding: 0 20px;
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+button:disabled { opacity: .5; cursor: wait; }
+footer {
+  color: var(--muted);
+  text-align: center;
+  padding: 24px;
+  font-size: 12px;
+}
+@media (max-width: 650px) {
+  .tools { grid-template-columns: 1fr; }
+  .messages { height: 300px; }
+  .message { max-width: 96%; }
+  header { padding: 16px 4%; }
+  main { margin-top: 26px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">✦ <span>AI</span> Business Assistant</div>
+  <div class="status">● Local workspace</div>
+</header>
+
+<main>
+  <div class="eyebrow">YOUR AI WORKSPACE</div>
+  <h1>Let's simplify your<br>business workflows.</h1>
+  <p class="subtitle">
+    Calculate costs, classify customer requests, and prepare business tasks
+    using your Python AI agent and its tools.
+  </p>
+
+  <section class="tools">
+    <button class="tool" onclick="usePrompt('Calculate the total cost of 7 items at 125.50 each.')">
+      <div class="tool-icon">🧮</div>
+      <strong>Cost Calculator</strong>
+      <small>Calculate quantities, prices, and totals.</small>
+    </button>
+    <button class="tool" onclick="usePrompt('A customer was charged twice for an invoice. Classify the issue and recommend an action.')">
+      <div class="tool-icon">📋</div>
+      <strong>Request Classifier</strong>
+      <small>Identify the category, priority, and next action.</small>
+    </button>
+    <button class="tool" onclick="usePrompt('Create a high priority task assigned to Sangeetha titled Review delayed invoice.')">
+      <div class="tool-icon">✓</div>
+      <strong>Task Assistant</strong>
+      <small>Prepare a draft task with an owner and priority.</small>
+    </button>
+  </section>
+
+  <section class="chat-panel">
+    <div class="chat-heading">
+      <strong>Chat with your assistant</strong>
+      <small id="state">Ready to help</small>
+    </div>
+    <div class="messages" id="messages" aria-live="polite">
+      <div class="message bot">Hello! I'm your AI Business Process Assistant. Choose a tool above or tell me what you'd like to do.</div>
+    </div>
+    <form class="composer" id="chatForm">
+      <input id="prompt" placeholder="Ask me to calculate, classify, or create a task..." autocomplete="off" required>
+      <button class="send" id="send" type="submit">Send ➤</button>
+    </form>
+  </section>
+</main>
+
+<footer>
+  Built with Python · Strands Agents · Amazon Bedrock · AgentCore Runtime SDK
+  <br><br>Local demo. Draft tasks are not saved to a permanent database.
+</footer>
+
+<script>
+const form = document.getElementById("chatForm");
+const input = document.getElementById("prompt");
+const messages = document.getElementById("messages");
+const state = document.getElementById("state");
+const send = document.getElementById("send");
+
+function addMessage(text, type) {
+  const item = document.createElement("div");
+  item.className = "message " + type;
+  item.textContent = text;
+  messages.appendChild(item);
+  messages.scrollTop = messages.scrollHeight;
+  return item;
+}
+
+function usePrompt(text) {
+  input.value = text;
+  input.focus();
+  form.requestSubmit();
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const prompt = input.value.trim();
+  if (!prompt || send.disabled) return;
+
+  addMessage(prompt, "user");
+  input.value = "";
+  send.disabled = true;
+  state.textContent = "Thinking...";
+
+  const pending = addMessage("Working on your request...", "bot");
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "The request failed.");
+    }
+
+    pending.textContent = data.reply || "The agent returned an empty response.";
+    state.textContent = "Response received";
+  } catch (error) {
+    pending.className = "message error";
+    pending.textContent = "Unable to get a response.\n" + error.message;
+    state.textContent = "Check connection";
+  } finally {
+    send.disabled = false;
+    input.focus();
+    messages.scrollTop = messages.scrollHeight;
+  }
+});
+</script>
+</body>
+</html>
